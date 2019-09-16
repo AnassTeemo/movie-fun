@@ -19,9 +19,4 @@ public class Application {
         return new ServletRegistrationBean(actionServlet, "/moviefun/*");
     }
 
-    @Bean
-    public JettyServletWebServerFactory jettyServletWebServerFactory(@Value("${server.servlet.context-path}") String context, @Value("${server.servlet.port}") int port) {
-        return new JettyServletWebServerFactory(context, port);
-    }
-
 }
