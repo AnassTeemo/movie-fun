@@ -1,6 +1,7 @@
 package org.superbiz.moviefun;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -9,10 +10,13 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @SpringBootApplication(exclude = {
@@ -36,16 +40,16 @@ public class Application {
     }
 
     @Bean
-    public DataSource albumsDataSource(DatabaseServiceCredentials serviceCredentials) {
-        MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setURL(serviceCredentials.jdbcUrl("albums-mysql"));
+    public HikariDataSource albumsDataSource(DatabaseServiceCredentials serviceCredentials) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(serviceCredentials.jdbcUrl("albums-mysql"));
         return dataSource;
     }
 
     @Bean
-    public DataSource moviesDataSource(DatabaseServiceCredentials serviceCredentials) {
-        MysqlDataSource dataSource = new MysqlDataSource();
-        dataSource.setURL(serviceCredentials.jdbcUrl("movies-mysql"));
+    public HikariDataSource moviesDataSource(DatabaseServiceCredentials serviceCredentials) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(serviceCredentials.jdbcUrl("movies-mysql"));
         return dataSource;
     }
 
@@ -82,6 +86,16 @@ public class Application {
         factory.setPersistenceUnitName("albums-unit-name");
 
         return factory;
+    }
+
+    @Bean
+    public PlatformTransactionManager moviesTransactionManager(@Qualifier("moviesEntityManagerFactory") LocalContainerEntityManagerFactoryBean moviesEntityManagerFactory) {
+        return new JpaTransactionManager(moviesEntityManagerFactory.getObject());
+    }
+
+    @Bean
+    public PlatformTransactionManager albumsTransactionManager(@Qualifier("albumsEntityManagerFactory") LocalContainerEntityManagerFactoryBean albumsEntityManagerFactory) {
+        return new JpaTransactionManager(albumsEntityManagerFactory.getObject());
     }
 
 }
