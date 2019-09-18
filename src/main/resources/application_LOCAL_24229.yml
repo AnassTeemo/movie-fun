@@ -9,15 +9,7 @@ spring:
   mvc.view:
     prefix: /WEB-INF/
     suffix: .jsp
-
 logging.level:
     root: INFO
     org.superbiz.moviefun.AlbumsController: ERROR
     org.superbiz.moviefun.MoviesBean: DEBUG
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-
